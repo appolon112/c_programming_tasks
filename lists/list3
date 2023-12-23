@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node* prev;
+    struct Node* next;
+} Node;
+
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->prev = newNode->next = NULL;
+    return newNode;
+}
+
+Node* createCircularDoublyList(int N) {
+    Node* head = NULL;
+    Node* tail = NULL;
+    for (int i = 1; i <= N; i++) {
+        Node* newNode = createNode(i);
+        if (!head) {
+            head = tail = newNode;
+            head->prev = head->next = head;
+        } else {
+            newNode->prev = tail;
+            newNode->next = head;
+            tail->next = newNode;
+            tail = newNode;
+            head->prev = tail;
+        }
+    }
+    return head;
+}
+
+void removeKthNode(Node** head, int K) {
+    Node* curr = *head;
+    while (curr->next != curr) {
+        for (int i = 1; i < K; i++) {
+            curr = curr->next;
+        }
+        curr->prev->next = curr->next;
+        curr->next->prev = curr->prev;
+
+        if (curr == *head) {
+            *head = curr->next;
+        }
+
+        Node* temp = curr;
+        curr = curr->next;
+        free(temp);
+    }
+}
+
+
+int main() {
+    int N, K;
+    printf("Введите N и K: ");
+    scanf("%d %d", &N, &K);
+
+    Node* head = createCircularDoublyList(N);
+    removeKthNode(&head, K);
+
+    printf("Оставшийся номер: %d\n", head->data);
+
+    free(head); // Освобождаем последний узел
+    return 0;
+}
